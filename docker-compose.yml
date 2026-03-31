@@ -12,6 +12,7 @@ services:
       dockerfile: Dockerfile.chainlit
     ports:
       - "8001:8000"
+      - "2024:2024"
     env_file:
       - .env
     environment:
@@ -24,21 +25,21 @@ services:
       - ./short_term_memory:/app/data
     depends_on:
       - qdrant
-  # whatsapp:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8080:8080"
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     - QDRANT_PORT=6333
-  #     - QDRANT_API_KEY=None
-  #     - QDRANT_HOST=localhost
-  #     - QDRANT_URL=http://qdrant:6333
-  #   restart: unless-stopped
-  #   volumes: 
-  #     - ./short_term_memory:/app/data
-  #   depends_on:
-  #     - qdrant
+  whatsapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - QDRANT_PORT=6333
+      - QDRANT_API_KEY=None
+      - QDRANT_HOST=localhost
+      - QDRANT_URL=http://qdrant:6333
+    restart: unless-stopped
+    volumes: 
+      - ./short_term_memory:/app/data
+    depends_on:
+      - qdrant

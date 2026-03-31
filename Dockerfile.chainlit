@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the dependency management files (lock file and pyproject.toml) first
-COPY uv.lock pyproject.toml README.md /app/
+COPY uv.lock pyproject.toml README.md langgraph.json /app/
 
 # Install the application dependencies
 RUN uv sync --frozen --no-cache
@@ -28,6 +28,16 @@ ENV VIRTUAL_ENV=/app/.venv \
 
 # Install the package in editable mode
 RUN uv pip install -e .
+
+# Install langgraph-cli[inmem] as an isolated tool to avoid uvicorn version
+# conflict with chainlit. A .pth file makes the project's packages visible to
+# the tool's Python (after the tool's own packages, so newer langgraph_sdk etc.
+# from the tool take precedence while project-only deps like pydantic_settings
+# are still found).
+RUN uv tool install "langgraph-cli[inmem]" --python 3.12 && \
+    echo "/app/.venv/lib/python3.12/site-packages" > \
+    /root/.local/share/uv/tools/langgraph-cli/lib/python3.12/site-packages/project_deps.pth
+ENV PATH="/root/.local/bin:$PATH"
 
 # Define volumes
 VOLUME ["/app/data"]
